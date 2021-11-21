@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const middleware = {
-  async authtoken(req, req, next) {
+  async authtoken(req, res, next) {
     let authtoken = req.headers.authtoken;
     console.log("token from headers", authtoken);
     if (authtoken) {
