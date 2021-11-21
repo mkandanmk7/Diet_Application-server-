@@ -47,6 +47,7 @@ const service = {
       });
       res.status(200).send({ success: "userinfo created" });
     } catch (err) {
+      console.log(err);
       res.status(500).send({ error: "server error" });
     }
   },

@@ -8,7 +8,7 @@ const db = require("./Shared/Mongo");
 
 //routes
 const userRoute = require("./Routes/UsersRoute");
-// const auth = require("./Routes/AuthRoute");
+const auth = require("./Routes/AuthRoute");
 const userInfoRoute = require("./Routes/UserInfoRoute");
 
 const app = express();
@@ -30,9 +30,9 @@ let startServer = async () => {
     //middlewares
     app.use("/users", userRoute);
 
-    // app.use(auth.autoken);
+    app.use(auth.autoken);
 
-    app.use("userinfo", userInfoRoute);
+    app.use("/userinfo", userInfoRoute);
 
     const port = process.env.PORT || 3001;
     server.listen(port, () => {
