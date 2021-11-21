@@ -85,6 +85,39 @@ const service = {
       res.status(500).send({ error: "server error" });
     }
   },
+  //daily calories update
+  async updateUserInfo(req, res) {
+    try {
+      //schema validation
+      let { error, value } = await updateCalorieSchema.validate(req.body);
+      console.log("details", value);
+      if (error) {
+        return res.status(401).send({ error: error.details[0].message });
+      }
+
+      //user verify for authorisation
+      const user = await db.userinfo.findOne({
+        _id: ObjectId(req.params.id),
+        userId: req.user.userId,
+      });
+      if (!user) {
+        return res.status(401).send({ error: "you don't have access" });
+      }
+
+      console.log("full details", value);
+
+      //update data
+      const data = await db.userinfo.findOneAndUpdate(
+        { userId: req.user.userId, _id: ObjectId(req.params.id) },
+        { $set: { ...value } },
+        { returnDocument: "after" }
+      );
+
+      res.send(data.value);
+    } catch (err) {
+      res.status(500).send({ error: "server error" });
+    }
+  },
 };
 
 module.exports = service;
