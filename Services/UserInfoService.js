@@ -118,6 +118,26 @@ const service = {
       res.status(500).send({ error: "server error" });
     }
   },
+
+  //to get user name and email
+  async getuser(req, res) {
+    try {
+      const data = await db.users
+        .aggregate([
+          {
+            $match: { _id: ObjectId(req.user.userId) },
+          },
+          {
+            $project: { email: 1, name: 1, _id: 0 },
+          },
+        ])
+        .toArray();
+
+      res.send(data);
+    } catch (err) {
+      res.status(500).send({ error: "server error" });
+    }
+  },
 };
 
 module.exports = service;
