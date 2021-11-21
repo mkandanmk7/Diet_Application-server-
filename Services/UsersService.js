@@ -75,6 +75,41 @@ const service = {
   },
   //login user
   async loginUser(req, res) {
+    //schema validation
+    const { error, value } = await loginSchema.validate(req.body);
+    if (error) {
+      return res.status(401).send({ error: error.details[0].message });
+    }
+    //user verification check
+    const user = await db.users.findOne({ email: value.email });
+    if (!user) {
+      return res.send({ error: "user doesn't exists" });
+    }
+
+    //verify password
+    const isValid = await bcrypt.compare(value.password, user.password);
+    if (!isValid) {
+      return res.send({ error: "password is wrong" });
+    }
+
+    //check user is verified or not
+    if (!user.isVerified) {
+      const link = `<p>Hi user, welcome to Dietify</p>
+         <p>Kindly click the link below to verify</p><br/>
+       <a href="https://hari-dietify.netlify.app/verifyuser/${user._id}">Click here</a>`;
+      await sendMail(value.email, "Verify User", link);
+      return res.send({ error: "User is not Verified,Link sent to email" });
+    }
+
+    //creating jwt
+    const authtoken = jwt.sign(
+      { userId: user._id, email: user.email, userName: user.name },
+      process.env.JWTSECRET,
+      { expiresIn: "8h" }
+    );
+
+    res.status(200).send({ authtoken });
+
     try {
     } catch (err) {
       res.status(500).send({ error: "server error" });
