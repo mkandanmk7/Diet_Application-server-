@@ -138,6 +138,30 @@ const service = {
       res.status(500).send({ error: "server error" });
     }
   },
+
+  //to change username and email
+  async EmailandName(req, res) {
+    try {
+      let { error, value } = await NameandMailSchema.validate(req.body);
+      if (error) {
+        return res.status(401).send({ error: error.details[0].message });
+      }
+
+      await db.userinfo.updateOne(
+        { userId: req.user.userId },
+        { $set: { ...value } }
+      );
+      const data = await db.users.findOneAndUpdate(
+        { _id: ObjectId(req.user.userId) },
+        { $set: { ...value } },
+        { returnDocument: "after" }
+      );
+
+      res.send(data.value);
+    } catch (err) {
+      res.status(500).send({ error: "server error" });
+    }
+  },
 };
 
 module.exports = service;
