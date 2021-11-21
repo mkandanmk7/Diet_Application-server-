@@ -56,6 +56,18 @@ const service = {
   },
   // verify user
   async verifyUser(req, res) {
+    //check user to verify
+    const user = await db.users.findOne({ _id: ObjectId(req.params.id) });
+    if (!user) {
+      return res.status(401).send({ error: "you are not authorised" });
+    }
+
+    //verified in database
+    await db.users.updateOne(
+      { _id: ObjectId(req.params.id) },
+      { $set: { isVerified: true } }
+    );
+    res.send({ success: "user verify sucess" });
     try {
     } catch (err) {
       res.status(500).send({ error: "server error" });
