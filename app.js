@@ -30,7 +30,7 @@ let startServer = async () => {
     //middlewares
     app.use("/users", userRoute);
 
-    app.use(auth.autoken);
+    app.use(auth.authtoken);
 
     app.use("/userinfo", userInfoRoute);
 
