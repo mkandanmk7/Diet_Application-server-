@@ -1,56 +1,95 @@
-const Joi = require("joi");
+const {
+  userSchema,
+  loginSchema,
+  passResetSchema,
+  newPassSchema,
+} = require("../Shared/Schema");
+const db = require("../Shared/Mongo");
+const bcrypt = require("bcrypt");
+const sendMail = require("./SendMail");
+const { ObjectId } = require("mongodb");
+const jwt = require("jsonwebtoken");
+const crypto = require("crypto");
 
-const schema = {
-  userSchema: Joi.object({
-    name: Joi.string().min(3).required(),
-    email: Joi.string()
-      .email()
-      .pattern(
-        /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
-      )
-      .required(),
-    password: Joi.string().min(6).max(12).required(),
-  }),
+const service = {
+  //register
+  async registerUser(req, res) {
+    try {
+      console.log("in register process");
+      //schema validation
+      console.log(req.body);
+      const { error, value } = await userSchema.validate(req.body);
+      console.log(value);
+      if (error) {
+        return res.status(401).send({ error: error.details[0].message });
+      }
+      //check user alreay exists
+      const user = await db.users.findOne({ email: value.email });
+      if (user) {
+        return res.send({ error: "user already exists" });
+      }
 
-  loginSchema: Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-  }),
+      //creating salt and encrypt password
+      const salt = await bcrypt.genSalt(10);
+      value.password = await bcrypt.hash(value.password, salt);
 
-  passResetSchema: Joi.object({
-    email: Joi.string().email().required(),
-  }),
-  newPassSchema: Joi.object({
-    password: Joi.string().min(6).max(12).required(),
-  }),
+      //insert user in database
+      const { insertedId } = await db.users.insertOne({
+        ...value,
+        isVerified: false,
+        passReset: "0",
+        resetlimit: 0,
+      });
 
-  NameandMailSchema: Joi.object({
-    name: Joi.string().min(3),
-    email: Joi.string()
-      .email()
-      .pattern(
-        /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
-      ),
-  }),
+      //sending verification mail
+      const link = `<p>Hi user, welcome to Dietify</p>
+        <p>Kindly click the link below to verify</p><br/>
+      <a href="https://hari-dietify.netlify.app/verifyuser/${insertedId}">Click here</a>`;
 
-  //user info schemas
-  userInfoSchema: Joi.object({
-    height: Joi.number().required(),
-    weight: Joi.number().required(),
-    targetWeight: Joi.number().required(),
-    age: Joi.number().required(),
-    activityFactor: Joi.number().required(),
-    totalDays: Joi.number().required(),
-    gender: Joi.string().required(),
-    caloriesNeed: Joi.number().required(),
-  }),
+      await sendMail(value.email, "Verify User", link);
 
-  updateCalorieSchema: Joi.object({
-    calories: Joi.number(),
-    date: Joi.string(),
-    track: Joi.array(),
-    water: Joi.number(),
-    food: Joi.array(),
-  }),
+      res.status(200).send({ success: "user registered success" });
+    } catch (err) {
+      console.log(err.message, err);
+      res.status(500).send({ error: "server error" });
+    }
+  },
+  // verify user
+  async verifyUser(req, res) {
+    try {
+    } catch (err) {
+      res.status(500).send({ error: "server error" });
+    }
+  },
+  //login user
+  async loginUser(req, res) {
+    try {
+    } catch (err) {
+      res.status(500).send({ error: "server error" });
+    }
+  },
+  //resettoken send
+  async sendPasswordResetLink(req, res) {
+    try {
+    } catch (err) {
+      res.send(500).send({ error: "server error" });
+    }
+  },
+  //veifylink
+  async VerifyResetLink(req, res) {
+    try {
+    } catch (err) {
+      res.send(500).send({ error: "server error" });
+    }
+  },
+
+  // reset passwrod
+  async resetPassword(req, res) {
+    try {
+    } catch (err) {
+      res.status(500).send({ error: "server error" });
+    }
+  },
 };
-module.exports = schema;
+
+module.exports = service;

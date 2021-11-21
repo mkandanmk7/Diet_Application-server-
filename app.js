@@ -6,6 +6,9 @@ const http = require("http");
 
 const db = require("./Shared/Mongo");
 
+//routes
+const userRoute = require("./Routes/UsersRoute");
+
 const app = express();
 
 const server = http.createServer(app);
@@ -15,13 +18,18 @@ let startServer = async () => {
     await db.connect();
 
     //for checking to browser;
-    app.get("/", (req, res) => {
+    app.get("/", (req, res, next) => {
       res.status(200).send("server is running successfully");
       console.log("server is running successfully");
+      next();
     });
 
+    app.use(express.json());
+    //middlewares
+    app.use("/users", userRoute);
+
     const port = process.env.PORT || 3001;
-    app.listen(port, () => {
+    server.listen(port, () => {
       console.log("server is runnging at", port);
     });
   } catch (err) {
