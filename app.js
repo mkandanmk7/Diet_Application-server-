@@ -25,7 +25,7 @@ let startServer = async () => {
       console.log("server is running successfully");
       next();
     });
-
+    app.use(cors());
     app.use(express.json());
     //middlewares
     app.use("/users", userRoute);
