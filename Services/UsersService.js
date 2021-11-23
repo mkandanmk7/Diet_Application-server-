@@ -44,7 +44,7 @@ const service = {
       //sending verification mail
       const link = `<p>Hi user, welcome to Dietify</p>
         <p>Kindly click the link below to verify</p><br/>
-      <a href="https://hari-dietify.netlify.app/verifyuser/${insertedId}">Click here</a>`;
+      <a href="https://muthu-diet-client.netlify.app/verifyuser/${insertedId}">Click here</a>`;
 
       await sendMail(value.email, "Verify User", link);
 
@@ -96,7 +96,7 @@ const service = {
     if (!user.isVerified) {
       const link = `<p>Hi user, welcome to Dietify</p>
          <p>Kindly click the link below to verify</p><br/>
-       <a href="https://hari-dietify.netlify.app/verifyuser/${user._id}">Click here</a>`;
+       <a href="https://muthu-diet-client.netlify.app/verifyuser/${user._id}">Click here</a>`;
       await sendMail(value.email, "Verify User", link);
       return res.send({ error: "User is not Verified,Link sent to email" });
     }
@@ -142,7 +142,7 @@ const service = {
     //send email
     const link = `<p>Hi user, password Reset verification from Dietify</p>
          <p>Kindly click the link below to Reset your password</p><br/>
-       <a href="https://hari-dietify.netlify.app/passverifylink/${user._id}/${token}">Click here</a>`;
+       <a href="https://muthu-diet-client.netlify.app/passverifylink/${user._id}/${token}">Click here</a>`;
 
     await sendMail(user.email, "Forgot password Reset", link);
 
